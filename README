@@ -1,0 +1,7 @@
+"attach" is small wrapper script that helps manage new and existisng screen sessions.
+
+Add the "attach" script to your path, e.g.:
+ln -s ${HOME}/src/screen-session-attach/attach ${HOME}/bin/attach
+
+And, if you want tab completion, source the _attach_complete.sh file in your .bashrc, e.g.:
+test -r ${HOME}/src/screen-session-attach/_attach_complete.sh && source ${HOME}/src/screen-session-attach/_attach_complete.sh

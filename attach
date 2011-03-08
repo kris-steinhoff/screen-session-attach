@@ -1,0 +1,47 @@
+#!/bin/bash
+
+## For tab completion for existing screen sessions, add this code to your .bash_rc
+# _attach_complete ()
+# {
+#     screens=`screen -ls | while read s dump; do echo $s | grep '[0-9]\..*' &> /dev/null; rc=$?; if [ ${rc} -eq 0 ]; then echo $s | awk -F. '{ print $2 }'; fi; done`
+#     local curw
+#     COMPREPLY=()
+#     curw=${COMP_WORDS[COMP_CWORD]}
+#     COMPREPLY=($(compgen -W "${screens}" -- $curw))
+#     return 0
+# }
+# 
+# complete -F _attach_complete attach
+# 
+
+name=${1}
+
+if [ "x$name" = "x" ]; then
+    screen -ls
+else
+    if [ ! ${HOST} ]; then
+        HOST=`hostname`
+    fi
+
+    SCREENSESSION=$name screen -ls ${name} | head -1 | grep '^No Sockets found' > /dev/null; rc=$?
+    if [ $rc -ne 0 ]; then
+        # set the terminal emulator's title:
+        echo -ne "\033]0;$USER@$HOST $name\007"
+        # attach to the existing screen session, $SCREENSESSION is used in .screenrc
+        SCREENSESSION=$name screen -dr $name
+        # remove the terminal emulator's title:
+        echo -ne "\033]0;\007"
+    else
+        read -p "Socket $name not found. Start? [Y/n] " res
+        test "x$res" = "x" && res="Y"
+
+        if [ "$res" = "Y" -o "$res" = "y" ]; then
+            # set the terminal emulator's title:
+            echo -ne "\033]0;$USER@$HOST $name\007"
+            # start the new screen session, $SCREENSESSION is used in .screenrc
+            SCREENSESSION=$name screen -S $name
+            # remove the terminal emulator's title:
+        echo -ne "\033]0;\007"
+        fi
+    fi
+fi
