@@ -14,6 +14,30 @@
 # complete -F _attach_complete attach
 # 
 
+usage="usage: `basename $0` [ -c screen_config_file ] screen_session_name"
+
+
+screen_config=""
+args=`getopt c: $*`
+if [ $? != 0 ]
+then
+    echo $usage
+    exit 2
+fi
+set -- $args
+
+for i
+do
+    case "$i"
+        in
+        -c)
+            screen_config="$2"; shift;
+            shift;;
+        --)
+            shift; break;;
+    esac
+done
+
 name=${1}
 
 if [ "x$name" = "x" ]; then
@@ -39,9 +63,14 @@ else
             # set the terminal emulator's title:
             echo -ne "\033]0;$USER@$HOST $name\007"
             # start the new screen session, $SCREENSESSION is used in .screenrc
-            SCREENSESSION=$name screen -S $name
+            if [ "x$screen_config" = "x"]; then
+                SCREENSESSION=$name screen -S $name
+            else
+                SCREENSESSION=$name screen -c $screen_config -S $name
+            fi
+
             # remove the terminal emulator's title:
-        echo -ne "\033]0;\007"
+            echo -ne "\033]0;\007"
         fi
     fi
 fi
