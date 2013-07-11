@@ -49,28 +49,19 @@ else
 
     SCREENSESSION=$name screen -ls ${name} | head -1 | grep '^No Sockets found' > /dev/null; rc=$?
     if [ $rc -ne 0 ]; then
-        # set the terminal emulator's title:
-        echo -ne "\033]0;$USER@$HOST $name\007"
         # attach to the existing screen session, $SCREENSESSION is used in .screenrc
         SCREENSESSION=$name screen -dr $name
-        # remove the terminal emulator's title:
-        echo -ne "\033]0;\007"
     else
         read -p "Socket $name not found. Start? [Y/n] " res
         test "x$res" = "x" && res="Y"
 
         if [ "$res" = "Y" -o "$res" = "y" ]; then
-            # set the terminal emulator's title:
-            echo -ne "\033]0;$USER@$HOST $name\007"
             # start the new screen session, $SCREENSESSION is used in .screenrc
             if [ "x$screen_config" = "x" ]; then
                 SCREENSESSION=$name screen -S $name
             else
                 SCREENSESSION=$name screen -c $screen_config -S $name
             fi
-
-            # remove the terminal emulator's title:
-            echo -ne "\033]0;\007"
         fi
     fi
 fi
